@@ -273,6 +273,16 @@
     @media(max-width:640px){
       .toast-msg{left:1rem;right:1rem;bottom:5rem;justify-content:center;font-size:.8rem}
     }
+
+    /* ===== BOTTOM SPACING ===== */
+    .main-content{
+      padding-bottom: 6rem; /* extra bottom space on desktop */
+    }
+    @media(max-width:640px){
+      .main-content{
+        padding-bottom: calc(5rem + 8rem); /* 5rem clears mobile nav + 8rem extra */
+      }
+    }
   </style>
 </head>
 <body>
@@ -364,7 +374,7 @@
       /* ============================================================
          STORAGE
          ============================================================ */
-      const STORAGE_KEY='mediconnect_pro_data_v3'; // bumped: fixes invalid slots on old data
+      const STORAGE_KEY='mediconnect_pro_data_v3';
 
       function generateSeedData(){
         const specialties=['Cardiology','Dermatology','Neurology','Pediatrics','Orthopedics','Psychiatry'];
@@ -381,7 +391,6 @@
           {id:'s8',name:'Telehealth Follow-up',duration:20,price:100,insuranceCovered:true}
         ];
 
-        // FIX: store slots in 24h "HH:MM" so no parsing bugs anywhere
         const allSlots=['09:00','10:30','11:15','13:00','14:30','15:45','16:15','17:00'];
 
         const firstNames=['Elena','Marcus','Priya','James','Amara','Liam','Sofia','Noah','Aisha','David','Maya','Ethan'];
@@ -399,7 +408,7 @@
             avatar:firstNames[i][0]+lastNames[i][0],
             location:loc,
             experience:(5+Math.floor(Math.random()*15))+' yrs',
-            nextSlot:allSlots[i%allSlots.length], // deterministic, no random breakage
+            nextSlot:allSlots[i%allSlots.length],
             availableToday:true,
             slotsToday:Math.floor(1+Math.random()*5),
             bio:'Board-certified specialist with extensive experience in '+spec.toLowerCase()+'. Committed to patient-centered care.',
@@ -584,7 +593,6 @@
         if(isNaN(d))return dateStr;
         return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
       }
-      // Handles both "14:30" (24h) and "2:30 PM" (12h) safely
       function formatTime(timeStr){
         if(!timeStr)return '—';
         const t=String(timeStr).trim();
@@ -612,7 +620,6 @@
       }
       function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-      // Convert "2:30 PM" or "14:30" -> "14:30" always
       function parseSlotTo24h(slot){
         if(!slot) return null;
         const s=String(slot).trim();
@@ -635,7 +642,6 @@
         return null;
       }
 
-      // Format date string for <input type="date">
       function toDateInputValue(dateStr){
         if(!dateStr)return '';
         if(/^\d{4}-\d{2}-\d{2}$/.test(dateStr))return dateStr;
@@ -1843,7 +1849,6 @@
           const dt=new Date(date+'T'+time+':00');
           if(isNaN(dt)){showNotification('Error','Invalid date/time.','fa-exclamation-triangle');return;}
 
-          // conflict check (skip the appointment we're editing)
           const conflict=state.appointments.find(x=>
             x.id!==id &&
             x.doctorId===docId &&
@@ -2102,7 +2107,6 @@
         `);
       };
 
-      // FIXED: robust time parsing + conflict detection + safe date
       window.__quickBook=function(id){
         const d=state.doctors.find(x=>x.id===id);
         if(!d)return;
